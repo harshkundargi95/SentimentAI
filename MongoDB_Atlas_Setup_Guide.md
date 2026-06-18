@@ -352,12 +352,12 @@ mongodb+srv://harshuser:<db_password>@cluster0.abc123.mongodb.net/?retryWrites=t
 
 **Before:**
 ```
-mongodb+srv://harshuser:mypassword123@cluster0.abc123.mongodb.net/?retryWrites=true&w=majority
+mongodb+srv://<your_username>:<your_password>@cluster0.abc123.mongodb.net/?retryWrites=true&w=majority
 ```
 
 **After:**
 ```
-mongodb+srv://harshuser:mypassword123@cluster0.abc123.mongodb.net/sentiment_db?retryWrites=true&w=majority
+mongodb+srv://<your_username>:<your_password>@cluster0.abc123.mongodb.net/sentiment_db?retryWrites=true&w=majority
 ```
 
 The `sentiment_db` part tells MongoDB which database to use. Our app is coded to use this exact name.
@@ -401,7 +401,7 @@ FLASK_DEBUG=1
 SECRET_KEY=my-super-secret-key-12345
 
 # MongoDB Atlas
-MONGO_URI=mongodb+srv://harshuser:mypassword123@cluster0.abc123.mongodb.net/sentiment_db?retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://<your_username>:<your_password>@cluster0.abc123.mongodb.net/sentiment_db?retryWrites=true&w=majority
 ```
 
 Replace the `MONGO_URI` value with **YOUR actual connection string** from Step 9.
