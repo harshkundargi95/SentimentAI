@@ -34,13 +34,19 @@ print("Sentiment model loaded successfully!")
 #                      neutral, sadness, surprise
 # (downloads automatically on first run ~330MB)
 # ---------------------------------------------------
-print("Loading emotion model...")
-emotion_model = pipeline(
-    "text-classification",
-    model="j-hartmann/emotion-english-distilroberta-base",
-    top_k=None  # Return all 7 emotion scores
-)
-print("Emotion model loaded successfully!")
+DISABLE_EMOTION = os.getenv("DISABLE_EMOTION", "False") == "True"
+
+if not DISABLE_EMOTION:
+    print("Loading emotion model...")
+    emotion_model = pipeline(
+        "text-classification",
+        model="j-hartmann/emotion-english-distilroberta-base",
+        top_k=None  # Return all 7 emotion scores
+    )
+    print("Emotion model loaded successfully!")
+else:
+    print("Emotion model disabled via DISABLE_EMOTION var (saves ~330MB RAM).")
+    emotion_model = None
 
 # ---------------------------------------------------
 # MongoDB setup (falls back to in-memory if no MongoDB)
@@ -177,12 +183,15 @@ def analyze():
     sentiment, emoji = classify_sentiment(top["label"])
     score = top["score"]
 
-    # Run emotion model — returns list of all 7 emotion scores
-    emotion_scores = emotion_model(text)[0]
+    # Run emotion model
+    if emotion_model:
+        emotion_scores = emotion_model(text)[0]
+        emotions = build_emotions(emotion_scores)
+    else:
+        emotions = {"Disabled (Low Memory)": 0.0}
 
     # Build percentage breakdowns
     breakdown = build_breakdown(sentiment_scores)
-    emotions = build_emotions(emotion_scores)
 
     # Persist the result
     entry = save_result(text, sentiment, score)
@@ -234,11 +243,14 @@ def analyze_bulk():
         score = top["score"]
 
         # Run emotion model
-        emotion_scores = emotion_model(text)[0]
+        if emotion_model:
+            emotion_scores = emotion_model(text)[0]
+            emotions = build_emotions(emotion_scores)
+        else:
+            emotions = {"Disabled (Low Memory)": 0.0}
 
         # Build breakdowns
         breakdown = build_breakdown(sentiment_scores)
-        emotions = build_emotions(emotion_scores)
 
         # Persist the result
         save_result(text, sentiment, score)
