@@ -1,3 +1,12 @@
+---
+title: SentimentAI
+emoji: 🧠
+colorFrom: purple
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+
 # 🧠 SentimentAI — AI-Based Social Media Sentiment & Emotion Analyzer
 
 An AI-powered web application that performs real-time **sentiment analysis** and **emotion detection** on any text input — specifically optimized for **social media content, public opinions, and informal text.**
