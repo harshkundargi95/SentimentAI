@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="AI-powered sentiment analyzer using RoBERTa. Analyze tweets, reviews, and comments for positive, negative, or neutral sentiment with emotion detection.">
+  <title>SentimentAI — Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">🧠 SentimentAI</div>
+      <nav>
+        <button class="tab-btn active" id="tab-btn-single" onclick="showTab('single')">Single Analysis</button>
+        <button class="tab-btn" id="tab-btn-bulk" onclick="showTab('bulk')">Bulk Analysis</button>
+        <button class="tab-btn" id="tab-btn-history" onclick="showTab('history')">History</button>
+        <button class="tab-btn" id="tab-btn-stats" onclick="showTab('stats')">Stats</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===================== SINGLE ANALYSIS ===================== -->
+    <section id="tab-single" class="tab-section active">
+      <div class="card">
+        <h2>Analyze Text Sentiment</h2>
+        <p class="subtitle">Paste any review, tweet, or comment below to detect its sentiment.</p>
+
+        <div class="input-group">
+          <textarea id="single-input" placeholder="Type or paste your text here... (max 1000 characters)" maxlength="1000"></textarea>
+          <div class="char-counter"><span id="char-count">0</span> / 1000</div>
+        </div>
+
+        <div class="example-chips">
+          <span class="chip-label">Try an example:</span>
+          <button class="chip" id="chip-positive" onclick="setExample('I absolutely love this product! Best purchase I ever made.')">😊 Positive</button>
+          <button class="chip" id="chip-negative" onclick="setExample('This is the worst experience I have ever had. Totally disappointed.')">😞 Negative</button>
+          <button class="chip" id="chip-neutral" onclick="setExample('The product is okay, nothing special.')">😐 Neutral</button>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-primary" onclick="analyzeSingle()" id="analyze-btn">
+            <span id="btn-text">Analyze Sentiment</span>
+            <span id="btn-spinner" class="spinner hidden"></span>
+          </button>
+          <button class="btn-clear" id="clear-btn" onclick="clearInput()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Clear
+          </button>
+        </div>
+
+        <div id="single-result" class="result-box hidden">
+          <!-- Top result area -->
+          <div class="result-header-row">
+            <div class="result-main">
+              <div class="result-emoji" id="result-emoji"></div>
+              <div class="result-label" id="result-label"></div>
+            </div>
+            <button class="btn-copy" id="copy-result-btn" onclick="copyResult()" title="Copy result">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span id="copy-btn-text">Copy</span>
+            </button>
+          </div>
+
+          <!-- Main confidence bar -->
+          <div class="confidence-bar-wrap">
+            <div class="confidence-label">Confidence: <strong id="result-score"></strong></div>
+            <div class="bar-bg">
+              <div class="bar-fill" id="bar-fill"></div>
+            </div>
+          </div>
+
+          <div class="result-text" id="result-text-display"></div>
+
+          <!-- Confidence Breakdown Section -->
+          <div class="breakdown-section" id="confidence-breakdown">
+            <h3 class="section-title">Confidence Breakdown</h3>
+            <div id="breakdown-bars" class="breakdown-bars"></div>
+          </div>
+
+          <!-- Emotion Section -->
+          <div class="emotion-section" id="emotion-section">
+            <button class="btn-toggle" id="toggle-emotions-btn" onclick="toggleEmotions()">
+              <span id="toggle-emotions-text">Show Emotions</span>
+              <svg id="toggle-emotions-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div id="emotion-bars" class="emotion-bars hidden"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== BULK ANALYSIS ===================== -->
+    <section id="tab-bulk" class="tab-section">
+      <div class="card">
+        <h2>Bulk Sentiment Analysis</h2>
+        <p class="subtitle">Enter multiple texts — one per line (max 20). Great for analyzing product reviews in batch.</p>
+
+        <textarea id="bulk-input" placeholder="Enter one text per line...
+I love this product!
+The delivery was late.
+It is an average experience." rows="8"></textarea>
+
+        <div class="action-row">
+          <button class="btn-primary" onclick="analyzeBulk()" id="bulk-analyze-btn">
+            <span id="bulk-btn-text">Analyze All</span>
+            <span id="bulk-btn-spinner" class="spinner hidden"></span>
+          </button>
+          <button class="btn-export hidden" id="export-csv-btn" onclick="exportCSV()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+        </div>
+
+        <div id="bulk-results" class="hidden">
+          <div id="bulk-summary" class="summary-row"></div>
+          <div id="bulk-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HISTORY ===================== -->
+    <section id="tab-history" class="tab-section">
+      <div class="card">
+        <h2>Recent Analyses</h2>
+        <p class="subtitle">Last 10 analyses performed in this session.</p>
+        <button class="btn-outline" id="refresh-history-btn" onclick="loadHistory()">🔄 Refresh</button>
+        <div id="history-list" class="history-list"></div>
+      </div>
+    </section>
+
+    <!-- ===================== STATS ===================== -->
+    <section id="tab-stats" class="tab-section">
+      <div class="card">
+        <h2>Sentiment Statistics</h2>
+        <p class="subtitle">Visual breakdown of all analyses performed.</p>
+        <button class="btn-outline" id="refresh-stats-btn" onclick="loadStats()">🔄 Refresh</button>
+        <div class="chart-wrap">
+          <canvas id="statsChart"></canvas>
+        </div>
+        <div id="stats-numbers" class="stats-numbers"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Built with 🤗 Hugging Face Transformers · Flask · Python</p>
+  </footer>
+
+  <!-- Toast notification container -->
+  <div id="toast-container"></div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
