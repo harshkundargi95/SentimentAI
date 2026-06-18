@@ -31,3 +31,7 @@ Thumbs.db
 
 # Model cache
 models/
+
+# Documentation
+MongoDB_Atlas_Setup_Guide.md
+SentimentAI_Project_Report.md
