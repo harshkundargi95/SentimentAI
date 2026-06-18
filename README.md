@@ -11,6 +11,11 @@ pinned: false
 
 **Live Demo:** [View on Hugging Face Spaces](https://huggingface.co/spaces/harshkundargi-2528/SentimentAI)
 
+## 🌍 Live Deployment & Project Location
+The project is officially deployed and hosted on **Hugging Face Spaces**. 
+*   **Public URL:** [https://huggingface.co/spaces/harshkundargi-2528/SentimentAI](https://huggingface.co/spaces/harshkundargi-2528/SentimentAI)
+*   **Where to find it:** To access the server dashboard, container logs, or deployment settings, simply log into your Hugging Face account at `huggingface.co`, click on your Profile picture in the top right corner, and select **Spaces**. Your `SentimentAI` project will be listed there.
+
 ## 📌 Project Overview
 **SentimentAI** is a full-stack, AI-powered web application that performs real-time **sentiment analysis** and **emotion detection** on text. It is specifically optimized to understand informal text, social media content, and product reviews.
 
